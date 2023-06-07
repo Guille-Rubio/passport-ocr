@@ -11,7 +11,7 @@
     "image-js": "^0.35.3",
     "libgif": "^0.0.3",
     "ml-matrix": "^6.10.4",
-    "mrz-scanner": "^1.2.3",
+    "ocr-tools": "^0.2.0",
     "radians-degrees": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

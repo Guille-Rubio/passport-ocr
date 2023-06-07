@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import Tesseract from "tesseract.js";
 import { cropMrz } from "../../helpers/mrz/run/getMrz";
+
 import { saveAs } from "file-saver";
 
 
@@ -16,22 +17,7 @@ const WebcamCapture = () => {
   const [file, setFile] = useState(null);
   const [fileDataURL, setFileDataURL] = useState(null);
   const [mrz, setMrz] = useState(null);
-  const [croppedMrzImage, setCroppedMrzImage] = useState("");
-
-
-  //HELPERS (TODO remove from this script)
-
-  function dataURLtoFile(dataurl, filename) {
-    var arr = dataurl.split(','),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[arr.length - 1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  }
+  const [mrzArr, setMrzArr] = useState("");
 
 
   //Detects new uploaded image
@@ -73,13 +59,14 @@ const WebcamCapture = () => {
 
     if (fileDataURL) {
       const cropForm = async () => {
-        const { crop } = await cropMrz(fileDataURL); //uint8array MOST LIKELY ERROR IS HERE!
+        const { crop } = await cropMrz(fileDataURL); //IT should take all pictures for a better OCR detection, not only crop
         console.log("CROP", crop);
         const mrzUrl = crop.toDataURL()
         console.log("URL", mrzUrl);
 
+        /* //Save croped mrz as file
         const mrzFile = dataURLtoFile(mrzUrl);
-        //        saveAs(mrzFile, "mrz.png");
+        saveAs(mrzFile, "mrz.png"); */
 
         setMrz(mrzUrl);
       };
@@ -97,11 +84,14 @@ const WebcamCapture = () => {
   useEffect(() => {
     if (mrz) {
       const doOcr = async () => {
-        await recognizeImg(mrz);
+        await recognizeImg(mrz);//OCR WITH TESSERACT
+        
+        //await readMrz(mrz);//OCR WITH MZR-DETECT
       };
 
       doOcr();
     }
+    // eslint-disable-next-line
   }, [mrz]);
 
   //CAMERA INPUT
@@ -121,8 +111,7 @@ const WebcamCapture = () => {
     if (preview) {
       const setCropPreview = async () => {
         const newHeader = "data:image/jpeg;base64," + preview.split(",")[1];
-        const { crop } = await cropMrz(newHeader); //uint8array
-
+        const { crop } = await cropMrz(newHeader);
         setMrzPreview(crop.toDataURL());
       };
       setCropPreview();
@@ -148,8 +137,10 @@ const WebcamCapture = () => {
             data: { text },
           } = await worker.recognize(image);
           console.log(text);
+          setMrzArr(text.split("\n"));
+          console.log(mrzArr);
           await worker.terminate();
-
+        
         })();
       } catch (error) {
         console.log(error);
@@ -177,6 +168,8 @@ const WebcamCapture = () => {
       ) : null}
       <button onClick={downloadMzr}>Descargar MRZ</button>
       <button onClick={downloadPreview}>Descargar Vista Previa</button>
+
+
 
       <h1>Camera input</h1>
       <Webcam
