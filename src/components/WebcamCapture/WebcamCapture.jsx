@@ -18,7 +18,7 @@ const WebcamCapture = () => {
   const [fileDataURL, setFileDataURL] = useState(null);
   const [mrz, setMrz] = useState(null);
   const [mrzArr, setMrzArr] = useState("");
-  const [cameraMode, setCameraMode] = useState("");
+  const [cameraMode, setCameraMode] = useState({ exact: "environment" });
 
 
   //Detects new uploaded image
