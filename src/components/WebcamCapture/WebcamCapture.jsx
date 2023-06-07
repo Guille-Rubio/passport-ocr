@@ -7,8 +7,6 @@ import { saveAs } from "file-saver";
 
 
 
-//import { Buffer } from "buffer";
-
 const imageMimeType = /image\/(png|jpg|jpeg)/i;
 
 const WebcamCapture = () => {
@@ -17,7 +15,7 @@ const WebcamCapture = () => {
   const [file, setFile] = useState(null);
   const [fileDataURL, setFileDataURL] = useState(null);
   const [mrz, setMrz] = useState(null);
-  const [mrzArr, setMrzArr] = useState("");
+  const [mrzArr, setMrzArr] = useState([]);
 
 
   //Detects new uploaded image
@@ -64,9 +62,6 @@ const WebcamCapture = () => {
         const mrzUrl = crop.toDataURL()
         console.log("URL", mrzUrl);
 
-        /* //Save croped mrz as file
-        const mrzFile = dataURLtoFile(mrzUrl);
-        saveAs(mrzFile, "mrz.png"); */
 
         setMrz(mrzUrl);
       };
@@ -84,8 +79,9 @@ const WebcamCapture = () => {
   useEffect(() => {
     if (mrz) {
       const doOcr = async () => {
+        console.log("HIII");
         await recognizeImg(mrz);//OCR WITH TESSERACT
-        
+
         //await readMrz(mrz);//OCR WITH MZR-DETECT
       };
 
@@ -102,9 +98,9 @@ const WebcamCapture = () => {
   );
 
   const videoConstraints = {
-    width: 1280,
-    height: 720,
-    facingMode: /* "user" ||  */"environment" ,
+    width: 720,
+    height: 1280,
+    facingMode: /* "user" ||  */"environment",
   };
 
   useEffect(() => {
@@ -138,9 +134,9 @@ const WebcamCapture = () => {
           } = await worker.recognize(image);
           console.log(text);
           setMrzArr(text.split("\n"));
-          console.log(mrzArr);
+
           await worker.terminate();
-        
+
         })();
       } catch (error) {
         console.log(error);
@@ -148,53 +144,56 @@ const WebcamCapture = () => {
       }
     })();
   };
-  
+
 
   return (
     <>
-      <h1>Form Input</h1>
-      <label htmlFor="image"> Browse images </label>
-      <input
-        type="file"
-        id="image"
-        accept=".png, .jpg, .jpeg"
-        onChange={changeHandler}
-      />
+      <section className="file-input">
+        <h1>Form Input</h1>
+        <label htmlFor="image"> Browse images </label>
+        <input
+          type="file"
+          id="image"
+          accept=".png, .jpg, .jpeg"
+          onChange={changeHandler}
+        />
 
-      {fileDataURL ? (
-        <p className="img-preview-wrapper">
-          {<img src={fileDataURL} alt="preview" width="200px" />}
-          {<img src={mrz} alt="previewMRZ" width="200px" />}
-        </p>
-      ) : null}
-      <button onClick={downloadMzr}>Descargar MRZ</button>
-      <button onClick={downloadPreview}>Descargar Vista Previa</button>
+        {fileDataURL ? (
+          <p className="img-preview-wrapper">
+            {<img src={fileDataURL} alt="preview" width="200px" />}
+            {<img src={mrz} alt="previewMRZ" width="200px" />}
+          </p>
+        ) : null}
+        <button onClick={downloadMzr}>Descargar MRZ</button>
+        <button onClick={downloadPreview}>Descargar Vista Previa</button>
 
-
-
-      <h1>Camera input</h1>
-      <Webcam
-        audio={false}
-        height={520}
-        screenshotFormat="image/jpeg"
-        width={720}
-        videoConstraints={videoConstraints}
-      >
-        {({ getScreenshot }) => (
-          <button
-            onClick={async () => {
-              const imageSrc = getScreenshot(); //data:image/jpeg;base64,
-              console.log(imageSrc);
-              setPreview(imageSrc);
-            }}
-          >
-            Take picture
-          </button>
-        )}
-      </Webcam>
-      <h1>Preview</h1>
-      <img src={preview} alt="capture" width="200px" />
-      <img src={mrzPreview} alt="mzr" width="200px" />
+      </section>
+      <section className="camera-input">
+        <h1>Camera input</h1>
+        <Webcam
+          audio={false}
+          //height={720}
+          screenshotFormat="image/jpeg"
+          //width={520}
+          videoConstraints={videoConstraints}
+        >
+          {({ getScreenshot }) => (
+            <button
+              onClick={async () => {
+                const imageSrc = getScreenshot(); //data:image/jpeg;base64,
+                console.log(imageSrc);
+                setPreview(imageSrc);
+              }}
+            >
+              Take picture
+            </button>
+          )}
+        </Webcam>
+        <h1>Preview</h1>
+        <img src={preview} alt="capture" width="200px" />
+        <img src={mrzPreview} alt="mzr" width="200px" />
+        <span>{mrzArr.toString()}</span>
+      </section>
     </>
   );
 };

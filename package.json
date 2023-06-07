@@ -6,7 +6,6 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "buffer": "^6.0.3",
     "file-saver": "^2.0.5",
     "image-js": "^0.35.3",
     "libgif": "^0.0.3",
