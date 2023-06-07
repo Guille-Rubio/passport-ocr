@@ -18,6 +18,7 @@ const WebcamCapture = () => {
   const [fileDataURL, setFileDataURL] = useState(null);
   const [mrz, setMrz] = useState(null);
   const [mrzArr, setMrzArr] = useState("");
+  const [cameraMode, setCameraMode] = useState("");
 
 
   //Detects new uploaded image
@@ -85,7 +86,7 @@ const WebcamCapture = () => {
     if (mrz) {
       const doOcr = async () => {
         await recognizeImg(mrz);//OCR WITH TESSERACT
-        
+
         //await readMrz(mrz);//OCR WITH MZR-DETECT
       };
 
@@ -140,7 +141,7 @@ const WebcamCapture = () => {
           setMrzArr(text.split("\n"));
           console.log(mrzArr);
           await worker.terminate();
-        
+
         })();
       } catch (error) {
         console.log(error);
@@ -148,6 +149,19 @@ const WebcamCapture = () => {
       }
     })();
   };
+
+
+  const handleToggleCamera = () => {
+    let cameraModes = {
+      front: "user",
+      back: { exact: "environment" }
+    }
+    if (cameraMode === cameraModes.front) {
+      setCameraMode(cameraModes.back);
+    } else if (cameraMode === cameraModes.back) {
+      setCameraMode(cameraModes.front);
+    }
+  }
 
   return (
     <>
@@ -191,6 +205,7 @@ const WebcamCapture = () => {
           </button>
         )}
       </Webcam>
+      <button onClick={handleToggleCamera}>Toggle Camera</button>
       <h1>Preview</h1>
       <img src={preview} alt="capture" width="200px" />
       <img src={mrzPreview} alt="mzr" width="200px" />
